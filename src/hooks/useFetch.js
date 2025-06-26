@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
  *   - loading: boolean que indica si la petición está en curso.
  *   - error: mensaje de error si ocurre alguno (o null si no hay error).
  */
-export const useFetch = (url) => { // recibe una URL como parámetro
+export const useFetch = (url, options = {}) => { // recibe una URL como parámetro
 
     //Estados: 
     const [data, setData] = useState([]); //Estado: guardar los datos que trae la API
@@ -26,7 +26,7 @@ export const useFetch = (url) => { // recibe una URL como parámetro
         setIsLoading(true);               //Al empezar la petición: Loading en true
         setError(null);                 //Limpieza de errores previos
 
-        fetch(url)//Llamada a la API con fetch (retorna un promesa)
+        fetch(url, options)//Llamada a la API con fetch (retorna un promesa)
             .then((res) => {
                 if (!res.ok) {//Si la respuesta no es ok lanza un error
                     throw error('Error en la respuesta');
@@ -41,7 +41,8 @@ export const useFetch = (url) => { // recibe una URL como parámetro
                 setError(err.message);  //Si hay un error, lo guardamos 
                 setIsLoading(false);      //y paramos la carga
             });
-        }, [url]);//Este efecto se ejecuta cada vez que cambie la URL
+        }, [url, JSON.stringify(options)]);//Este efecto se ejecuta cada vez que cambie la URL
+        //JSON.stringify(options) convierte el objeto en un string, y así React puede detectar si su contenido cambió, no solo su ubicación en memoria. 
 
   return { data, isLoading, error };//Retornamos esto para que el componente que use este hook pueda acceder
 }
