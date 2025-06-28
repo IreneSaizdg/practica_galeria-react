@@ -5,44 +5,45 @@ import { useState, useEffect } from 'react';
 
 // CUSTOM HOOK: useFetch (hacer peticiones a la API)
 /**
- * Custom hook para hacer una petición fetch a una API y manejar estados de carga, datos y error.
- * @param {string} url - La URL de la API a la que se quiere hacer la petición.
- * @returns {Object} Un objeto con las propiedades:
- *   - data: los datos obtenidos de la API (o null mientras carga).
- *   - loading: boolean que indica si la petición está en curso.
- *   - error: mensaje de error si ocurre alguno (o null si no hay error).
+ * Hook personalizado para realizar peticiones HTTP y manejar su estado.
+ *
+ * @returns {Object} - Contiene el estado de la petición y la función `fetchData`.
+ * @property {*} data - Los datos obtenidos de la petición.
+ * @property {boolean} isLoading - Indica si la petición está en curso.
+ * @property {string|null} error - Mensaje de error si la petición falla.
+ * @property {Function} fetchData - Función para disparar una petición HTTP.
+ *
+ * @example
+ * const { data, isLoading, error, fetchData } = useFetch();
+ * useEffect(() => {
+ *   fetchData('https://api.example.com/data');
+ * }, []);
  */
-export const useFetch = (url, options = {}) => { // recibe una URL como parámetro
+export const useFetch = () => {
+    // Estados:
+    const [data, setData] = useState([]); //datos
+    const [isLoading, setIsLoading] = useState(false); //estado de carga
+    const [error, setError] = useState(null); //error
 
-    //Estados: 
-    const [data, setData] = useState([]); //Estado: guardar los datos que trae la API
-    const [isLoading, setIsLoading] = useState(true); //Estado: controla si la petición está cargando
-    const [error, setError] = useState(null); //Estado: guardar un posible error si la petición falla
+    // Función para disparar la petición:
+    const fetchData = useCallback(async (url, method='GET', headers={}, body={}) => { //useCallback es un hook de React que memoriza una función. Evita bugs y llamadas innecesarias.
+        setIsLoading(true); //Indica el estado de carga, y con ello que la petición ha comenzado
+        setError(null); //Resetea el estado de error antes de lanzar una nueva petición
 
-    useEffect(() => { //useEffect jecuta código cuando el componente se monta o cuando cambia algo
-        if (!url) return; //Si no hay URL, no hacemos nada 
-        //TODO: gestionar el error
-        
-        setIsLoading(true);               //Al empezar la petición: Loading en true
-        setError(null);                 //Limpieza de errores previos
+        try {
+            const response = await apiFetch(url, method, headers, body);
+            setData(response); //Almacena la respuesta recibidad en el estado "data"
 
-        fetch(url, options)//Llamada a la API con fetch (retorna un promesa)
-            .then((res) => {
-                if (!res.ok) {//Si la respuesta no es ok lanza un error
-                    throw error('Error en la respuesta');
-                }
-                return res.json();//Convertir respuesta a JSON para trabajar con datos
-            })
-            .then((data) => {
-                setData(data);          //Guardamos la data en el estado
-                setIsLoading(false);      //Paramos la carga
-            })
-            .catch((err) => {
-                setError(err.message);  //Si hay un error, lo guardamos 
-                setIsLoading(false);      //y paramos la carga
-            });
-        }, [url, JSON.stringify(options)]);//Este efecto se ejecuta cada vez que cambie la URL
-        //JSON.stringify(options) convierte el objeto en un string, y así React puede detectar si su contenido cambió, no solo su ubicación en memoria. 
+        } catch (err) {
+            setError(err.message || 'Error desconocido'); //Si hay error lo guarda en el estado error
 
-  return { data, isLoading, error };//Retornamos esto para que el componente que use este hook pueda acceder
-}
+        } finally {
+            setIsLoading(false); //Deja de indicar el cargando... La petición ha terminado
+        }
+
+    }, []); //Dependencia vacía -> La función no se vuelve a crear en cada render a no ser que algo externo cambie
+
+
+    //Devuelve los estados y la función para disparar la petición:
+    return { data, isLoading, error, fetchData };
+};

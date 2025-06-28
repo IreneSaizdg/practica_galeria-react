@@ -1,7 +1,7 @@
 // IMPORTS
 import { Card } from './Card'
 import { useFetch } from '../hooks/useFetch'
-import { buildSearchUrl, fetchOptions } from '../api/apiPexels'
+import { buildSearchUrl, fetchOptions } from '../api/fetch'
 
 
 
