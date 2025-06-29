@@ -24,28 +24,63 @@ import { useState } from 'react'; //hook useState: permite guardar y actualizar 
  */
 const useForm = (initialValue) => {
     //Estado:
-    const [inputValue, setInputValue] = useState(initialValue); //Guarda lo que el usuario escribe en el form. 
+    const [form, setForm] = useState(initialValue); //Guarda lo que el usuario escribe en el form. 
 
-    //Manejador: 
+    //Manejador: de cambios para inputs
     const handleChange = (event) => { //Esta función se activa cada vez que el user escribe en el input
-        setInputValue(event.target.value); //Obtiene el nuevo valor del usuario y luego cambbia/actualiza el estado 
+        const { name, value } = event.target; //Extrae name y value del input
+
+        setForm((newFormData) => ({     //Toma la versión más actual del estado
+            ...newFormData,             //Copia todos los valores existentes del estado form
+            [name]: value,              //Sobrescribe el campo del form con el name del input que está siendo editado y le asigna su value
+        }));
+        console.log(`useForm, newFormData, Nuevo valor introducido por el usuario: ${value}`);
     };
 
-    const resetInput = () => { 
-        setInputValue(''); //Reinicia el valor del input a vacío por si queremos vaciar el campo de búsqueda
-    }
+    const resetInput = () => { // Reset del input
+        const resetState = {};
+        for (const key in form) {
+            resetState[key] = "";
+        }
+        setForm(resetState); 
+    };
+
+    const serializeForm = () => { //Serializa el formulario eliminando espacios y valores vacíos
+        const serialized = {};
+
+        for (const key in form) {   //Recorre cada campo del form por su nombre key
+        const value = form[key];    //Obtiene el valor del campo actual
+
+            if (typeof value === 'string') {    //Si el valor es un string, elimina espacios en blanco al principio y al final
+                const trimmed = value.trim();
+                if (trimmed) {
+                    serialized[key] = trimmed;  //Evalúa si el string no está vacío, si tiene contenido guarda el valor en el objeto final
+                }
+
+            } else if (value !== undefined && value !== null) { 
+                serialized[key] = value; //Si no es string pero si un valor válido, también lo guarda
+            }
+        }
+
+        return serialized;
+    };
 
     return {
-        inputValue,     //Texto actual del input
-        handleChange,   //Función para actualizar el input cuando cambia
-        resetInput      //Función para limpiar el campo
-    }
-}
+        form,
+        handleChange,
+        resetInput,
+        serializeForm,
+    };
 
+};
 
 
 
 // EXPORTS
 export default useForm
+
+
+
+
 
 

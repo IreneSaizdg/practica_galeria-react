@@ -1,5 +1,4 @@
-import { FormAddCat } from './components/FormAddCat'
-import { CardGallery } from './components/CardGallery'
+import { GalleryComponent } from './components/GalleryComponent'
 
 
 
@@ -11,9 +10,8 @@ function App() {
         <p className='display-2'>Práctica Galería React</p>
       </header>
 
-      <main className='container'>
-        <FormAddCat/>
-        <CardGallery/>
+      <main className='galleryComponent'>
+        <GalleryComponent/>
 
       </main>
 

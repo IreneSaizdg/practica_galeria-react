@@ -1,7 +1,8 @@
 // IMPORTS
+import { useEffect } from 'react';
 import { Card } from './Card'
 import { useFetch } from '../hooks/useFetch'
-import { buildSearchUrl, fetchOptions } from '../api/fetch'
+import { buildSearchUrl } from '../api/fetch'
 
 
 
@@ -18,9 +19,12 @@ import { buildSearchUrl, fetchOptions } from '../api/fetch'
  * @returns {JSX.Element} Galería de tarjetas con imágenes o mensajes de carga/error.
  */
 export const CardGallery = ({ category, page }) => {
-    const url = buildSearchUrl(category, page); //Construye la URL de búsqueda con la categoría y la página
-    const { data, isLoading, error } = useFetch(url, fetchOptions); //Hook personalizado para obtener los datos de la API
-    console.log('data:', data);
+    const { data, isLoading, error, fetchData } = useFetch(); // Solo invoca el hook, no le pasas parámetros directamente
+
+    useEffect(() => {
+        const url = buildSearchUrl(category, page); // Genera la URL con los parámetros
+        fetchData(url); // Dispara la petición
+    }, [category, page, fetchData]); // Se ejecuta cada vez que cambia la categoría o la página
 
     return (
         <section>
@@ -29,6 +33,7 @@ export const CardGallery = ({ category, page }) => {
             {isLoading && <p>Cargando imágenes...</p>} {/* Muestra mensaje de carga mientras se obtienen los datos */}
             {error && <p>Error: {error} </p>} {/* Muestra mensaje de error si ocurre un fallo en la petición */}
 
+            {!isLoading && !error &&(
             <div className="card-group">
                 {data?.photos?.length === 0 && <p>No se encontraron imágenes.</p>} {/* Si no hay fotos, muestra mensaje (ojo: typo en "length") */}
                     {/* data? -> si hay data pasa a photos, si no undefined sin lanzar error. UTIL PARA DATOS ASÍNCRONOS */}
@@ -38,6 +43,7 @@ export const CardGallery = ({ category, page }) => {
                     <Card key={image.id} image={image}/> 
                 ))}
             </div>
+            )}
         </section>
     )
 }

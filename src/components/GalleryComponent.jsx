@@ -1,10 +1,10 @@
 import { useState } from "react"
+import { CardGallery } from "./cardGallery"
 import FormAddCat from "./FormAddCat"
-import CardGallery from "./CardGallery"
 
 
-// COMPONENT: ga
-export const GalleryBlock = () => {
+// COMPONENT:galería completa
+export const GalleryComponent = () => {
 
     const [categories, setCategories] = useState([1, 2, 3])
     const onNewCategory = (category) => {
@@ -12,9 +12,6 @@ export const GalleryBlock = () => {
         setCategories([category, ...categories])
 
     }
-
-
-
 
 
     return (

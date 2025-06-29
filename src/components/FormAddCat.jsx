@@ -16,17 +16,18 @@ import useForm from '../hooks/useForm'
  * 
  * @param {Function} onNewCategory - Función del padre para añadir la categoría nueva
  */
-export const FormAddCat = ({ onNewCategory }) => {
-    const { inputValue, handleChange, resetInput } = useForm('');
+const FormAddCat = ({ onNewCategory }) => {
+    console.log("onNewCategory prop:", onNewCategory)
+    const { form, handleChange, resetInput, serializeForm } = useForm({category:''});
 
     //Manejador
     const handleSubmit = (ev) => { //Función que se ejecuta al enviar el formulario
         ev.preventDefault(); //Previene el comportamiento por defecto
 
-        const trimmedValue = inputValue.trim(); //Elimina espacios antes y después para que el usuario no añada categorías vacías.
-        if (trimmedValue.length <= 1) return; //Sale de la función y no hace nada
+        const formData = serializeForm(); //Elimina espacios y campos vacíos
+        if (!formData.category || formData.category.length <= 1) return;
 
-        onNewCategory(trimmedValue); //Llama a una función para añadir la nueva categoría y le pasa el input ya limpio y validado
+        onNewCategory(formData.category); //Llama a una función para añadir la nueva categoría y le pasa el input ya limpio y validado
         resetInput(); //Limpia el campo de búsqueda
     }
 
@@ -37,7 +38,7 @@ export const FormAddCat = ({ onNewCategory }) => {
                     type="text" 
                     name="category" 
                     placeholder="Escribe una categoría"
-                    value={inputValue}
+                    value={form.category}
                     onChange={handleChange}
                 />
                 <button type="submit">Añadir categoría</button>
@@ -46,8 +47,4 @@ export const FormAddCat = ({ onNewCategory }) => {
     );
 };
 
-
-
-
-// EXPORT
-export default FormAddCat
+export default FormAddCat;
